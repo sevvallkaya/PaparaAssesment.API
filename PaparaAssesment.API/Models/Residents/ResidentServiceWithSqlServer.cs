@@ -1,26 +1,27 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PaparaAssesment.API.Models.DTOs;
+using PaparaAssesment.API.Models.Flats;
 using PaparaAssesment.API.Models.Shared;
 
 namespace PaparaAssesment.API.Models.Residents
 {
-    public class ResidentServiceWithSqlServer(IResidentRepository residentRepository,IMapper mapper) : IResidentService
+    public class ResidentServiceWithSqlServer(IResidentRepository residentRepository,IMapper mapper, IFlatRepository flatRepository) : IResidentService
     {
         private IResidentRepository _residentRepository = residentRepository;
         private IMapper _mapper = mapper;
+        private IFlatRepository _flatRepository = flatRepository;
 
         public ResponseDto<List<ResidentDto>> GetAllResidents()
         {
 
-            var residentList = residentRepository.GetAllResidents();
+            var residentList = _residentRepository.GetAllResidents();
 
-
-            foreach (var resident in residentList)
-            {
-                //var flat = GetFlatByResidentId(resident.Id);
-                //resident.Flat = flat;
-            }   
+            //foreach (var resident in residentList)
+            //{
+            //   var flat = _flatRepository.GetFlatByResidentId(resident.ResidentId);
+            //   resident.Flat = flat;
+            //}   
 
             var residentListWithDto = _mapper.Map<List<ResidentDto>>(residentList);
 
@@ -30,9 +31,10 @@ namespace PaparaAssesment.API.Models.Residents
 
         public ResidentDto GetResidentById(int id)
         {
-            var resident = residentRepository.GetResidentById(id);
-            //var flat = getFlatByResidentId(resident.Id);
-            //resident.Flat = flat;
+            var resident = _residentRepository.GetResidentById(id);
+
+            var flat = _flatRepository.GetFlatByResidentId(resident.ResidentId);
+            resident.Flat = flat;
 
             return _mapper.Map<ResidentDto>(resident);
         }
@@ -51,7 +53,7 @@ namespace PaparaAssesment.API.Models.Residents
 
             };
 
-            residentRepository.AddResident(resident);
+            _residentRepository.AddResident(resident);
 
             return ResponseDto<int>.Success(resident.ResidentId);
         }
@@ -71,7 +73,7 @@ namespace PaparaAssesment.API.Models.Residents
             existingResident.Email = request.Email;
             existingResident.Phone = request.Phone;
 
-            residentRepository.UpdateResident(existingResident);
+            _residentRepository.UpdateResident(existingResident);
 
             return ResponseDto<int>.Success(existingResident.ResidentId);
         }
@@ -81,19 +83,28 @@ namespace PaparaAssesment.API.Models.Residents
 
         public void DeleteResident(int id)
         {
-            var resident = residentRepository.GetResidentById(id);
+            var resident = _residentRepository.GetResidentById(id);
 
             if (resident == null)
             {
                 throw new Exception("Sakini bulma başarısız.");
             }
 
-            //RemoveResidentToFlat(resident.Id, resident.Flat.Id);
-
-            residentRepository.DeleteResident(id);
+            _residentRepository.DeleteResident(id);
         }
 
-        //SetResidentToFlat(residentId, flatId)
-        //RemoveResidentToFlat(residentId, flatId)
+        public LoginDtoResponse Login(string tcNo, string phone)
+        {
+            var resident = _residentRepository.Login(tcNo, phone);
+            string token = "token";
+
+            LoginDtoResponse dto = new()
+            {
+                Token = token
+            };
+            return dto;
+
+        }
+
     }
 }

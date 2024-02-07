@@ -1,4 +1,6 @@
-﻿namespace PaparaAssesment.API.Models.Flats
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace PaparaAssesment.API.Models.Flats
 {
     public class FlatRepository(AppDbContext context) : IFlatRepository
     {
@@ -7,10 +9,14 @@
 
         public List<Flat> GetAllFlats()
         {
-            return _context.Flats.ToList();
+            return _context.Flats
+                .Include(a=>a.Payments)
+                .Include(a=>a.Block)
+                .Include(a=>a.FlatType)
+                .ToList();
         }
 
-        public Flat GetFlatById(int id)
+        public Flat? GetFlatById(int id)
         {
             return _context.Flats.Find(id);
         }
@@ -37,9 +43,10 @@
             _context.SaveChanges();
 
         }
-        public Flat GetFlatByResidentId(int residentId)
+        public Flat? GetFlatByResidentId(int residentId)
         {
             return _context.Flats.Where(flat => flat.ResidentId == residentId).FirstOrDefault();
         }
+
     }
 }

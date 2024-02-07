@@ -1,6 +1,8 @@
 ﻿using PaparaAssesment.API.Models.Residents;
+using PaparaAssesment.API.Models.Types;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using PaparaAssesment.API.Models.Flats;
 
 namespace PaparaAssesment.API.Models.Payments
 {
@@ -9,11 +11,16 @@ namespace PaparaAssesment.API.Models.Payments
         [Key]
         public int PaymentId { get; set; }
 
+        public int PaymentTypeId { get; set; }
+
+        [ForeignKey("PaymentTypeId")]
         public PaymentType PaymentType { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime CreatedDate { get; set; } =DateTime.Now;
 
-        public string Category { get; set; } = default!;
+        public DateTime? PaymentDate { get; set; }
+
+        public bool IsPaid { get; set; }
 
         public double Amount { get; set; }
 
@@ -21,12 +28,9 @@ namespace PaparaAssesment.API.Models.Payments
 
         public int Month { get; set; }
 
-        //DateTime paymentDate = DateTime.Now;
-        //int year = paymentDate.Year;
-        //int month = paymentDate.Month;
-
-        //public int? ResidentId { get; set; }
-        //[ForeignKey("ResidentId")]
-        //public Resident? Resident { get; set; }
+        public int FlatId { get; set; }
+        [ForeignKey("FlatId")]
+        public Flat Flat { get; set; }
+        
     }
 }

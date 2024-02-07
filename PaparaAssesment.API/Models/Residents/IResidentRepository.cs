@@ -7,5 +7,6 @@
         Resident AddResident(Resident resident);
         void UpdateResident(Resident resident);
         void DeleteResident(int id);
+        Resident? Login(string tcNo, string phone);
     }
 }

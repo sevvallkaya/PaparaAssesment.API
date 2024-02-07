@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using PaparaAssesment.API.Models.DTOs;
+using PaparaAssesment.API.Models.Payments;
 using PaparaAssesment.API.Models.Residents;
 using PaparaAssesment.API.Models.Shared;
 
@@ -14,7 +15,18 @@ namespace PaparaAssesment.API.Models.Flats
 
         public ResponseDto<List<FlatDto>> GetAllFlats()
         {
-            var flatList = flatRepository.GetAllFlats();
+            var flatList = _flatRepository.GetAllFlats();
+
+            var data = flatList.Select(flat => new FlatDto
+            {
+                Block = flat.Block.Name,
+                IsAvailable = flat.IsAvailable,
+                FlatType = flat.FlatType.Type,
+                Floor = flat.Floor,
+                FlatNumber = flat.FlatNumber,
+                FlatId = flat.FlatId,
+                Payments = flat.Payments.ToList()
+            }).ToList();
             
             var flatListWithDto = _mapper.Map<List<FlatDto>>(flatList);
 
@@ -23,7 +35,7 @@ namespace PaparaAssesment.API.Models.Flats
 
         public FlatDto GetFlatById(int id)
         {
-            var flat = flatRepository.GetFlatById(id);
+            var flat = _flatRepository.GetFlatById(id);
             return _mapper.Map<FlatDto>(flat);
         }
 
@@ -31,29 +43,33 @@ namespace PaparaAssesment.API.Models.Flats
         {
             var flat = new Flat
             {
-                Block = request.Block,
+                BlockId = request.BlockId,
                 IsAvailable = request.IsAvailable,
-                Type = request.Type,
+                FlatTypeId = request.FlatTypeId,
                 Floor = request.Floor,
                 FlatNumber = request.FlatNumber
             };
 
-            flatRepository.AddFlat(flat);
+            _flatRepository.AddFlat(flat);
 
             return ResponseDto<int>.Success(flat.FlatId);
         }
 
         public ResponseDto<int> UpdateFlat(UpdateFlatDtoRequest request)
         {
-            var existingFlat = flatRepository.GetFlatById(request.FlatId);
+            var existingFlat = _flatRepository.GetFlatById(request.FlatId);
+            if (existingFlat == null)
+            {
+                return ResponseDto<int>.Fail("Flat not found");
+            }
 
-            existingFlat.Block = request.Block;
+            existingFlat.BlockId = request.BlockId;
             existingFlat.IsAvailable = request.IsAvailable;
-            existingFlat.Type = request.Type;
+            existingFlat.FlatTypeId = request.FlatTypeId;
             existingFlat.Floor = request.Floor;
             existingFlat.FlatNumber = request.FlatNumber;
 
-            flatRepository.UpdateFlat(existingFlat);
+            _flatRepository.UpdateFlat(existingFlat);
 
             return ResponseDto<int>.Success(existingFlat.FlatId);
 
@@ -61,16 +77,31 @@ namespace PaparaAssesment.API.Models.Flats
 
         public void DeleteFlat(int id)
         {
-            var flat = flatRepository.GetFlatById(id);
-            flatRepository.DeleteFlat(id);
+            _flatRepository.DeleteFlat(id);
         }
 
         public FlatDto GetFlatByResidentId(int residentId)
         {
-            var flats = flatRepository.GetFlatByResidentId(residentId);
+            var flats = _flatRepository.GetFlatByResidentId(residentId);
             return _mapper.Map<FlatDto>(flats);
         }
 
+
+        public void SetResidentToFlat(int residentId, int flatId)
+        {
+            var flat = _flatRepository.GetFlatById(flatId);
+
+            flat.ResidentId = residentId;
+            _flatRepository.UpdateFlat(flat);
+        }
+
+        public void RemoveResidentFromFlat(int flatId)
+        {
+            var flat = _flatRepository.GetFlatById(flatId);
+
+            flat.ResidentId = null;
+            _flatRepository.UpdateFlat(flat);
+        }
 
     }
 }

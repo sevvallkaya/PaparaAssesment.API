@@ -4,11 +4,11 @@
     {
         public int FlatId { get; set; }
 
-        public string Block { get; set; } = default!;
+        public int BlockId { get; set; } = default!;
 
         public bool IsAvailable { get; set; }
 
-        public string Type { get; set; } = default!;
+        public int FlatTypeId { get; set; } = default!;
 
         public int Floor { get; set; }
 

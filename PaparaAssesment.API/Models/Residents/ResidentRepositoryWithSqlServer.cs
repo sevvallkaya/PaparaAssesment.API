@@ -1,4 +1,6 @@
-﻿namespace PaparaAssesment.API.Models.Residents
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace PaparaAssesment.API.Models.Residents
 {
     public class ResidentRepositoryWithSqlServer(AppDbContext context) : IResidentRepository
     {
@@ -11,7 +13,7 @@
 
         public Resident? GetResidentById(int id)
         {
-            return _context.Residents.Find(id);
+            return _context.Residents.Include(a=>a.Flat).FirstOrDefault(a=>a.ResidentId == id);
         }
 
         public Resident AddResident(Resident resident)
@@ -28,8 +30,6 @@
 
         }
 
-        
-
         public void DeleteResident(int id)
         {
             var resident = _context.Residents.Find(id);
@@ -38,5 +38,13 @@
             _context.SaveChanges();
 
         }
+
+        public Resident? Login(string tcNo, string phone)
+        {
+            var resident = _context.Residents.FirstOrDefault(a=>a.TcNo == tcNo && a.Phone == phone);
+
+            return resident;
+        }
+
     }
 }

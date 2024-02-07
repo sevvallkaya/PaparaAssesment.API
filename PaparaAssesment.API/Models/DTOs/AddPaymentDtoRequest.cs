@@ -1,21 +1,17 @@
-﻿using PaparaAssesment.API.Models.Payments;
+﻿using PaparaAssesment.API.Models.Types;
 
 namespace PaparaAssesment.API.Models.DTOs
 {
     public class AddPaymentDtoRequest
     {
-        public int PaymentId { get; set; }
-
-        public PaymentType PaymentType { get; set; }
-
-        public DateTime Date { get; set; }
-
-        public string Category { get; set; } = default!;
+        public int PaymentTypeId { get; set; }
 
         public double Amount { get; set; }
 
         public int Year { get; set; }
 
         public int Month { get; set; }
+
+        public int FlatId { get; set; }
     }
 }

@@ -11,6 +11,8 @@ namespace PaparaAssesment.API.Models.Residents
         ResponseDto<int> AddResident(AddResidentDtoRequest request);
         ResponseDto<int> UpdateResident(UpdateResidentDtoRequest request);
         void DeleteResident(int id);
-        
+        LoginDtoResponse Login(string tcNo, string phone);
+
+
     }
 }

@@ -5,7 +5,7 @@ using PaparaAssesment.API.Models.Residents;
 namespace PaparaAssesment.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class ResidentsController(IResidentService residentService) : ControllerBase
     {
         private readonly IResidentService _residentService = residentService;

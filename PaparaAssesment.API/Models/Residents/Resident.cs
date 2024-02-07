@@ -20,10 +20,7 @@ namespace PaparaAssesment.API.Models.Residents
 
         public string Phone { get; set; } = default!;
 
+        public Flat? Flat { get; set; }
 
-        //[ForeignKey("Flat")] 
-        public Flat Flat { get; set; } = default!;
-
-        //public ICollection<Payment> Payments { get; set; }
     }
 }

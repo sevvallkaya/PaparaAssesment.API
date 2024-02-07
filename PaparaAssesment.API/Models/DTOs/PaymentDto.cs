@@ -1,4 +1,4 @@
-﻿using PaparaAssesment.API.Models.Payments;
+﻿using PaparaAssesment.API.Models.Types;
 
 namespace PaparaAssesment.API.Models.DTOs
 {

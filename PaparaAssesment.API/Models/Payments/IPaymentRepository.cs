@@ -7,5 +7,6 @@
         Payment AddPayment(Payment payment);
         void UpdatePayment(Payment payment);
         void DeletePayment(int id);
+        Payment GetPaymentByFlatId(int flatId);
     }
 }

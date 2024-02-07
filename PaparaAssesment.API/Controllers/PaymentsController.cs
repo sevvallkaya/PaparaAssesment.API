@@ -6,7 +6,7 @@ namespace PaparaAssesment.API.Controllers
 {
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class PaymentsController(IPaymentService paymentService) : ControllerBase
     {
         private readonly IPaymentService _paymentService = paymentService;
@@ -23,21 +23,27 @@ namespace PaparaAssesment.API.Controllers
             return Ok(paymentService.GetPaymentById(id));
         }
 
-        [HttpPost("add")]
-        public IActionResult AddPayment(AddPaymentDtoRequest request)
+        [HttpGet("{flatId}")]
+        public IActionResult GetPaymentByFlatId(int flatId)
         {
-            var result = paymentService.AddPayment(request);
+            return Ok(paymentService.GetPaymentByFlatId(flatId));
+        }
+
+        [HttpPost]
+        public IActionResult AddPaymentByManager(AddPaymentDtoRequest request)
+        {
+            var result = paymentService.AddPaymentByManager(request);
             return Created("", result);
         }
 
-        [HttpPost("update")]
+        [HttpPost]
         public IActionResult UpdatePayment(UpdatePaymentDtoRequest request)
         {
             paymentService.UpdatePayment(request);
             return NoContent();
         }
 
-        [HttpPost("delete/{id}")]
+        [HttpPost("{id}")]
         public IActionResult DeletePayment(int id)
         {
             paymentService.DeletePayment(id);

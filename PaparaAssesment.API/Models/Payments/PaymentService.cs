@@ -11,54 +11,60 @@ namespace PaparaAssesment.API.Models.Payments
 
         public ResponseDto<List<PaymentDto>> GetAllPayments()
         {
-            var paymentList = paymentRepository.GetAllPayments();
+            var paymentList = _paymentRepository.GetAllPayments();
             var paymentListWithDto = _mapper.Map<List<PaymentDto>>(paymentList);
             return ResponseDto<List<PaymentDto>>.Success(paymentListWithDto);
         }
 
         public PaymentDto GetPaymentById(int id)
         {
-            var payment = paymentRepository.GetPaymentById(id);
+            var payment = _paymentRepository.GetPaymentById(id);
             return _mapper.Map<PaymentDto>(payment);
         }
 
-        public ResponseDto<int> AddPayment(AddPaymentDtoRequest request)
+        public ResponseDto<int> AddPaymentByManager(AddPaymentDtoRequest request)
         {
             var payment = new Payment
             {
-                PaymentType = request.PaymentType,
-                Date = request.Date,
-                Category = request.Category,
+                PaymentTypeId = request.PaymentTypeId,
+                CreatedDate = DateTime.Now,
                 Amount = request.Amount,
+                IsPaid = false,
                 Year = request.Year,
-                Month = request.Month
+                Month = request.Month,
+                FlatId = request.FlatId
             };
 
-            paymentRepository.AddPayment(payment);
+            _paymentRepository.AddPayment(payment);
 
             return ResponseDto<int>.Success(payment.PaymentId);
         }
 
         public ResponseDto<int> UpdatePayment(UpdatePaymentDtoRequest request)
         {
-            var existingPayment = paymentRepository.GetPaymentById(request.PaymentId);
+            var existingPayment = _paymentRepository.GetPaymentById(request.PaymentId);
 
             existingPayment.PaymentType = request.PaymentType;
-            existingPayment.Date = request.Date;
-            existingPayment.Category = request.Category;
+            existingPayment.PaymentDate = request.Date;
             existingPayment.Amount = request.Amount;
             existingPayment.Year = request.Year;
             existingPayment.Month = request.Month;
 
-            paymentRepository.UpdatePayment(existingPayment);
+            _paymentRepository.UpdatePayment(existingPayment);
 
             return ResponseDto<int>.Success(existingPayment.PaymentId);
         }
 
         public ResponseDto<int> DeletePayment(int id)
         {
-            paymentRepository.DeletePayment(id);
+            _paymentRepository.DeletePayment(id);
             return ResponseDto<int>.Success(id);
+        }
+
+        public PaymentDto GetPaymentByFlatId(int flatId)
+        {
+            var payment = _paymentRepository.GetPaymentByFlatId(flatId);
+            return _mapper.Map<PaymentDto>(payment);
         }
 
     }

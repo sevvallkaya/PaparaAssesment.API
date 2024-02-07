@@ -33,6 +33,11 @@
             _context.Remove(payment!);
             _context.SaveChanges();
         }
+
+        public Payment GetPaymentByFlatId(int flatId)
+        {
+            return _context.Payments.Where(payment => payment.FlatId == flatId).FirstOrDefault();
+        }
         
     }
 }
