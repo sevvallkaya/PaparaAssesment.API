@@ -12,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
 });
 
+builder.Services.AddIdentity<Resident, ResidentUser>().AddEntityFrameworkStores<AppDbContext>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddDIContainer();
 builder.Services.AddControllers();

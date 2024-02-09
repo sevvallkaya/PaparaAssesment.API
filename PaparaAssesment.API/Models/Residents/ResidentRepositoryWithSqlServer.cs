@@ -13,7 +13,7 @@ namespace PaparaAssesment.API.Models.Residents
 
         public Resident? GetResidentById(int id)
         {
-            return _context.Residents.Include(a=>a.Flat).FirstOrDefault(a=>a.ResidentId == id);
+            return _context.Residents.Include(a=>a.Flat).FirstOrDefault(a=>a.Id == id);
         }
 
         public Resident AddResident(Resident resident)
@@ -41,7 +41,7 @@ namespace PaparaAssesment.API.Models.Residents
 
         public Resident? Login(string tcNo, string phone)
         {
-            var resident = _context.Residents.FirstOrDefault(a=>a.TcNo == tcNo && a.Phone == phone);
+            var resident = _context.Residents.FirstOrDefault(a=>a.TcNo == tcNo && a.PhoneNumber == phone);
 
             return resident;
         }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PaparaAssesment.API.Models.DTOs;
 using PaparaAssesment.API.Models.Flats;
@@ -6,103 +7,239 @@ using PaparaAssesment.API.Models.Shared;
 
 namespace PaparaAssesment.API.Models.Residents
 {
-    public class ResidentServiceWithSqlServer(IResidentRepository residentRepository,IMapper mapper, IFlatRepository flatRepository) : IResidentService
+    public class ResidentServiceWithSqlServer(IResidentRepository residentRepository,IMapper mapper, IFlatRepository flatRepository, UserManager<Resident> userManager, RoleManager<ResidentUser> roleManager) : IResidentService
     {
-        private IResidentRepository _residentRepository = residentRepository;
-        private IMapper _mapper = mapper;
-        private IFlatRepository _flatRepository = flatRepository;
 
-        public ResponseDto<List<ResidentDto>> GetAllResidents()
-        {
-
-            var residentList = _residentRepository.GetAllResidents();
-
-            //foreach (var resident in residentList)
-            //{
-            //   var flat = _flatRepository.GetFlatByResidentId(resident.ResidentId);
-            //   resident.Flat = flat;
-            //}   
-
-            var residentListWithDto = _mapper.Map<List<ResidentDto>>(residentList);
-
-
-            return ResponseDto<List<ResidentDto>>.Success(residentListWithDto);
-        }
-
-        public ResidentDto GetResidentById(int id)
-        {
-            var resident = _residentRepository.GetResidentById(id);
-
-            var flat = _flatRepository.GetFlatByResidentId(resident.ResidentId);
-            resident.Flat = flat;
-
-            return _mapper.Map<ResidentDto>(resident);
-        }
-
-
-        public ResponseDto<int> AddResident(AddResidentDtoRequest request)
+        public async Task<ResponseDto<int>> CreateUser(ResidentCreateDtoRequest request)
         {
 
             var resident = new Resident
             {
                 Name = request.Name,
                 Surname = request.Surname,
+                UserName = request.Name+request.Surname,
                 TcNo = request.TcNo,
-                Email = request.Email,
-                Phone = request.Phone
-
+                PhoneNumber = request.Phone
             };
 
-            _residentRepository.AddResident(resident);
+            var result = await userManager.CreateAsync(resident);
 
-            return ResponseDto<int>.Success(resident.ResidentId);
-        }
-
-        public ResponseDto<int> UpdateResident(UpdateResidentDtoRequest request)
-        {
-            var existingResident = _residentRepository.GetResidentById(request.ResidentId);
-
-            if (existingResident == null)
+            if (!result.Succeeded)
             {
-                return ResponseDto<int>.Fail("Güncellenen sakini bulma başarısız.");
+                var errorList = result.Errors.Select(x => x.Description).ToList();
+                return ResponseDto<int>.Fail(errorList);
             }
 
-            existingResident.Name = request.Name;
-            existingResident.Surname = request.Surname;
-            existingResident.TcNo = request.TcNo;
-            existingResident.Email = request.Email;
-            existingResident.Phone = request.Phone;
-
-            _residentRepository.UpdateResident(existingResident);
-
-            return ResponseDto<int>.Success(existingResident.ResidentId);
+            return ResponseDto<int>.Success(resident.Id);
         }
 
-
-        
-
-        public void DeleteResident(int id)
+        public async Task<ResponseDto<string>> CreateRole(ResidentRoleCreateDtoRequest request)
         {
-            var resident = _residentRepository.GetResidentById(id);
+            var residentUser = new ResidentUser
+            {
+                Name = request.RoleName
+            };
+
+            var hasRole = await roleManager.RoleExistsAsync(residentUser.Name);
+
+
+            IdentityResult? roleCreateResult = null;
+
+            if (!hasRole)
+            {
+                roleCreateResult = await roleManager.CreateAsync(residentUser);
+
+                
+            }
+
+            if (roleCreateResult is not null &&  !roleCreateResult.Succeeded)
+            {
+                var errorList = roleCreateResult.Errors.Select(x => x.Description).ToList();
+
+                return ResponseDto<string>.Fail(errorList);
+            }
+
+            var hasResident = await userManager.FindByIdAsync(request.ResidentId);
+
+            if (hasResident is null)
+            {
+                return ResponseDto<string>.Fail("Sakin bulma başarısız.");
+            }
+
+            var roleAssignResult = await userManager.AddToRoleAsync(hasResident, residentUser.Name);
+
+            if (!roleAssignResult.Succeeded)
+            {
+                var errorList = roleAssignResult.Errors.Select(x => x.Description).ToList();
+
+                return ResponseDto<string>.Fail(errorList);
+            }
+
+            return ResponseDto<string>.Success(string.Empty);
+        }
+
+        public async Task<ResponseDto<ResidentDto>> GetResidentById(int residentId)
+        {
+            var resident = await userManager.FindByIdAsync(residentId.ToString());
 
             if (resident == null)
             {
-                throw new Exception("Sakini bulma başarısız.");
+                return ResponseDto<ResidentDto>.Fail("Kullanıcı bulunamadı.");
             }
+            var residentDto = new ResidentDto
+            {
+                ResidentId = resident.Id,
+            };
 
-            _residentRepository.DeleteResident(id);
+            return ResponseDto<ResidentDto>.Success(residentDto);
         }
 
-        public LoginDtoResponse Login(string tcNo, string phone)
+        public async Task<ResponseDto<int>> UpdateResident(ResidentUpdateDtoRequest request)
         {
-            var resident = _residentRepository.Login(tcNo, phone);
-            string token = "token";
+            var existingResident = await userManager.FindByIdAsync(request.ResidentId.ToString());
 
-            LoginDtoResponse dto = new()
+            if (existingResident == null)
             {
-                Token = token
-            };
-            return dto;
+                return ResponseDto<int>.Fail("Güncellenmek istenen kullanıcı bulunamadı.");
+            }
+
+            existingResident.TcNo = request.TcNo;
+            existingResident.PhoneNumber = request.Phone;
+
+            var result = await userManager.UpdateAsync(existingResident);
+
+            if (!result.Succeeded)
+            {
+                var errorList = result.Errors.Select(x => x.Description).ToList();
+                return ResponseDto<int>.Fail(errorList);
+            }
+
+            return ResponseDto<int>.Success(existingResident.Id);
+        }
+
+        public async Task<ResponseDto<int>> DeleteResident(int residentId)
+        {
+            var residentToDelete = await userManager.FindByIdAsync(residentId.ToString());
+
+            if (residentToDelete == null)
+            {
+                return ResponseDto<int>.Fail("Silinecek kullanıcı bulunamadı.");
+            }
+
+            var result = await userManager.DeleteAsync(residentToDelete);
+
+            if (!result.Succeeded)
+            {
+                var errorList = result.Errors.Select(x => x.Description).ToList();
+                return ResponseDto<int>.Fail(errorList);
+            }
+
+            return ResponseDto<int>.Success(residentId);
+        }
+
+        public async Task<ResponseDto<List<ResidentDto>>> GetAllResidents()
+        {
+            var residents = await userManager.Users.ToListAsync();
+
+            if (residents == null || !residents.Any())
+            {
+                return ResponseDto<List<ResidentDto>>.Success(new List<ResidentDto>());
+            }
+
+            var residentDtos = residents.Select(resident => new ResidentDto
+            {
+                ResidentId = resident.Id,
+            }).ToList();
+
+            return ResponseDto<List<ResidentDto>>.Success(residentDtos);
+        }
+
+
+
+        //public ResponseDto<List<ResidentDto>> GetAllResidents()
+        //{
+
+        //    var residentList = _residentRepository.GetAllResidents();
+
+        //    //foreach (var resident in residentList)
+        //    //{
+        //    //   var flat = _flatRepository.GetFlatByResidentId(resident.ResidentId);
+        //    //   resident.Flat = flat;
+        //    //}   
+
+        //    var residentListWithDto = _mapper.Map<List<ResidentDto>>(residentList);
+
+
+        //    return ResponseDto<List<ResidentDto>>.Success(residentListWithDto);
+        //}
+
+        //public ResidentDto GetResidentById(int id)
+        //{
+        //    var resident = _residentRepository.GetResidentById(id);
+
+        //    var flat = _flatRepository.GetFlatByResidentId(resident.ResidentId);
+        //    resident.Flat = flat;
+
+        //    return _mapper.Map<ResidentDto>(resident);
+        //}
+
+
+        //public ResponseDto<int> UpdateResident(UpdateResidentDtoRequest request)
+        //{
+        //    var existingResident = _residentRepository.GetResidentById(request.ResidentId);
+
+        //    if (existingResident == null)
+        //    {
+        //        return ResponseDto<int>.Fail("Güncellenen sakini bulma başarısız.");
+        //    }
+
+        //    existingResident.Name = request.Name;
+        //    existingResident.Surname = request.Surname;
+        //    existingResident.TcNo = request.TcNo;
+        //    existingResident.Email = request.Email;
+        //    existingResident.Phone = request.Phone;
+
+        //    _residentRepository.UpdateResident(existingResident);
+
+        //    return ResponseDto<int>.Success(existingResident.ResidentId);
+        //}
+
+        //public ResponseDto<int> AddResident(AddResidentDtoRequest request)
+        //{
+
+        //    var resident = new Resident
+        //    {
+        //        Name = request.Name,
+        //        Surname = request.Surname,
+        //        TcNo = request.TcNo,
+        //        Email = request.Email,
+        //        Phone = request.Phone
+
+        //    };
+
+        //    _residentRepository.AddResident(resident);
+
+        //    return ResponseDto<int>.Success(resident.ResidentId);
+        //}
+
+
+        //public void DeleteResident(int id)
+        //{
+        //    var resident = _residentRepository.GetResidentById(id);
+
+        //    if (resident == null)
+        //    {
+        //        throw new Exception("Sakini bulma başarısız.");
+        //    }
+
+        //    _residentRepository.DeleteResident(id);
+        //}
+
+        public Resident? Login(string tcNo, string phone)
+        {
+            var resident = residentRepository.Login(tcNo, phone);
+
+            return resident;
 
         }
 

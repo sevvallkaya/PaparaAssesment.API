@@ -7,6 +7,8 @@
 
         public List<string>? Errors { get; set; }
 
+        public bool AnyError => Errors is not null && Errors.Count > 0;
+
         public static ResponseDto<T> Success(T data)
         {
             return new ResponseDto<T>

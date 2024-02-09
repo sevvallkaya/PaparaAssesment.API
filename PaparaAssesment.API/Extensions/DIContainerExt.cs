@@ -1,6 +1,7 @@
 ﻿using PaparaAssesment.API.Models.Flats;
 using PaparaAssesment.API.Models.Payments;
 using PaparaAssesment.API.Models.Residents;
+using PaparaAssesment.API.Models.Token;
 
 namespace PaparaAssesment.API.Extensions
 {
@@ -14,6 +15,7 @@ namespace PaparaAssesment.API.Extensions
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IFlatRepository, FlatRepository>();
             services.AddScoped<IFlatService, FlatService>();
+            services.AddScoped<TokenService>();
 
         }
 
