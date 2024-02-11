@@ -1,43 +1,54 @@
-﻿namespace PaparaAssesment.API.Models.Payments
+﻿using Microsoft.EntityFrameworkCore;
+using PaparaAssesment.API.Models.Flats;
+using PaparaAssesment.API.Models.Types;
+
+namespace PaparaAssesment.API.Models.Payments
 {
     public class PaymentRepository(AppDbContext context) : IPaymentRepository
     {
-        private readonly AppDbContext _context = context;
 
         public List<Payment> GetAllPayments()
         {
-            return _context.Payments.ToList();
+            return context.Payments.ToList();
         }
 
         public Payment GetPaymentById(int id)
         {
-            return _context.Payments.Find(id);
+            return context.Payments.Find(id);
         }
 
         public Payment AddPayment(Payment payment)
         {
-            _context.Payments.Add(payment);
-            _context.SaveChanges();
+            context.Payments.Add(payment);
+            context.SaveChanges();
             return payment;
         }
 
         public void UpdatePayment(Payment payment)
         {
-            _context.Payments.Update(payment);
-            _context.SaveChanges();
+            context.Payments.Update(payment);
+            context.SaveChanges();
         }
 
         public void DeletePayment(int id)
         {
-            var payment = _context.Payments.Find(id);
-            _context.Remove(payment!);
-            _context.SaveChanges();
+            var payment = context.Payments.Find(id);
+            context.Remove(payment!);
+            context.SaveChanges();
         }
 
         public Payment GetPaymentByFlatId(int flatId)
         {
-            return _context.Payments.Where(payment => payment.FlatId == flatId).FirstOrDefault();
+            return context.Payments.Where(payment => payment.FlatId == flatId).FirstOrDefault();
         }
-        
+
+        public List<Payment> GetPaymentsByResidentId(int residentId)
+        {
+            return context.Payments
+                .Include(a=>a.Flat)
+                .Include(a=>a.PaymentType)
+                    .Where(payment => payment.Flat.ResidentId == residentId).ToList();
+        }
+
     }
 }

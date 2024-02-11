@@ -11,11 +11,6 @@ namespace PaparaAssesment.API.Models.Residents
         Task<ResponseDto<ResidentDto>> GetResidentById(int residentId);
         Task<ResponseDto<int>> UpdateResident(ResidentUpdateDtoRequest request);
         Task<ResponseDto<int>> DeleteResident(int residentId);
-        //ResponseDto<List<ResidentDto>> GetAllResidents();
-        //ResidentDto GetResidentById(int id);
-        //ResponseDto<int> AddResident(AddResidentDtoRequest request);
-        //ResponseDto<int> UpdateResident(UpdateResidentDtoRequest request);
-        //void DeleteResident(int id);
         Resident? Login(string tcNo, string phone);
 
 

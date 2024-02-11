@@ -11,6 +11,7 @@ namespace PaparaAssesment.API.Models.Flats
         {
             return _context.Flats
                 .Include(a=>a.Payments)
+                .ThenInclude(a=>a.PaymentType)
                 .Include(a=>a.Block)
                 .Include(a=>a.FlatType)
                 .ToList();

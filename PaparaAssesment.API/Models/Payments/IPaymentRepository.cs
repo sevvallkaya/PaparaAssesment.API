@@ -1,4 +1,6 @@
-﻿namespace PaparaAssesment.API.Models.Payments
+﻿using PaparaAssesment.API.Models.Types;
+
+namespace PaparaAssesment.API.Models.Payments
 {
     public interface IPaymentRepository
     {
@@ -8,5 +10,6 @@
         void UpdatePayment(Payment payment);
         void DeletePayment(int id);
         Payment GetPaymentByFlatId(int flatId);
+        List<Payment> GetPaymentsByResidentId(int residentId);
     }
 }

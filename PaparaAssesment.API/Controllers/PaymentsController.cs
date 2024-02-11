@@ -29,6 +29,20 @@ namespace PaparaAssesment.API.Controllers
             return Ok(paymentService.GetPaymentByFlatId(flatId));
         }
 
+        [HttpGet("{residentId}")]
+        public IActionResult GetPaymentsByResidentId(int residentId)
+        {
+            return Ok(paymentService.GetPaymentsByResidentId(residentId));
+        }
+
+        [HttpPost("{paymentId}")]
+        public IActionResult PayPayment(int paymentId)
+        {
+            return Ok(paymentService.PayPayment(paymentId));
+        }
+
+
+
         [HttpPost]
         public IActionResult AddPaymentByManager(AddPaymentDtoRequest request)
         {

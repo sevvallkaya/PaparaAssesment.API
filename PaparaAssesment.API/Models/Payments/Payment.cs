@@ -8,10 +8,12 @@ namespace PaparaAssesment.API.Models.Payments
 {
     public class Payment
     {
+
         [Key]
         public int PaymentId { get; set; }
 
         public int PaymentTypeId { get; set; }
+
 
         [ForeignKey("PaymentTypeId")]
         public PaymentType PaymentType { get; set; }
@@ -22,7 +24,8 @@ namespace PaparaAssesment.API.Models.Payments
 
         public bool IsPaid { get; set; }
 
-        public double Amount { get; set; }
+        public double Amount { get; set; } 
+        public double? PaidAmount { get; set; }
 
         public int Year { get; set; }
 
@@ -31,6 +34,7 @@ namespace PaparaAssesment.API.Models.Payments
         public int FlatId { get; set; }
         [ForeignKey("FlatId")]
         public Flat Flat { get; set; }
+
         
     }
 }

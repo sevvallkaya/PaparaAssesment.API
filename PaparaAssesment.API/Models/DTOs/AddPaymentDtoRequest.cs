@@ -13,5 +13,9 @@ namespace PaparaAssesment.API.Models.DTOs
         public int Month { get; set; }
 
         public int FlatId { get; set; }
+
+        
+
+
     }
 }

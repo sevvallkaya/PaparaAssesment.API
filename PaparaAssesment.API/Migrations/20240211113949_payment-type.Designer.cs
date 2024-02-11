@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PaparaAssesment.API.Models;
 
@@ -11,9 +12,11 @@ using PaparaAssesment.API.Models;
 namespace PaparaAssesment.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240211113949_payment-type")]
+    partial class paymenttype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,9 +189,6 @@ namespace PaparaAssesment.API.Migrations
 
                     b.Property<int>("Month")
                         .HasColumnType("int");
-
-                    b.Property<double?>("PaidAmount")
-                        .HasColumnType("float");
 
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("datetime2");

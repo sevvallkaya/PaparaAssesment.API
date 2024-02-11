@@ -21,6 +21,6 @@ namespace PaparaAssesment.API.Models.DTOs
 
         public int FlatNumber { get; set; }
 
-        public List<Payment> Payments { get; set; }
+        public List<PaymentDto> Payments { get; set; }
     }
 }

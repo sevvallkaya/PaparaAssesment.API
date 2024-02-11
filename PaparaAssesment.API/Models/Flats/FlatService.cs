@@ -25,12 +25,21 @@ namespace PaparaAssesment.API.Models.Flats
                 Floor = flat.Floor,
                 FlatNumber = flat.FlatNumber,
                 FlatId = flat.FlatId,
-                Payments = flat.Payments.ToList()
+                Payments = flat.Payments.Select(a=>new PaymentDto()
+                {
+                     Amount = a.Amount,
+                      CreateDate = a.CreatedDate,
+                      IsPaid = a.IsPaid,
+                            Month = a.Month,
+                             PaymentId = a.PaymentId,
+                              PaymentType = a.PaymentType,
+                            Year = a.Year
+                }).ToList()
             }).ToList();
             
-            var flatListWithDto = _mapper.Map<List<FlatDto>>(flatList);
+            //var flatListWithDto = _mapper.Map<List<FlatDto>>(flatList);
 
-            return ResponseDto<List<FlatDto>>.Success(flatListWithDto);
+            return ResponseDto<List<FlatDto>>.Success(data);
         }
 
         public FlatDto GetFlatById(int id)

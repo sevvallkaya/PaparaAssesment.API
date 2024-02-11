@@ -8,14 +8,14 @@ namespace PaparaAssesment.API.Models.DTOs
 
         public PaymentType PaymentType { get; set; }
 
-        public DateTime Date { get; set; }
-
-        public string Category { get; set; } = default!;
+        public DateTime CreateDate { get; set; }
 
         public double Amount { get; set; }
+        public double ? PaidAmount { get; set; }
 
         public int Year { get; set; }
 
         public int Month { get; set; }
+        public bool IsPaid { get; set; }
     }
 }

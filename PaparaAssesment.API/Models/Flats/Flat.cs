@@ -35,11 +35,11 @@ namespace PaparaAssesment.API.Models.Flats
 
         public ICollection<Payment> Payments { get; set; }
 
-        //public Flat()
-        //{
-        //    Payments = new HashSet<Payment>();
-        //}
-        
-        
+        public Flat()
+        {
+            Payments = new HashSet<Payment>();
+        }
+
+
     }
 }
